@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Happy New Month + 3D Heart 🌸</title>
+
+  <!-- Handwritten font -->
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@500;700&display=swap" rel="stylesheet">
+
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      font-family: 'Dancing Script', cursive;
+      background: linear-gradient(135deg, #ffdde1, #ee9ca7);
+    }
+
+    /* Centered Button */
+    a.button {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 3;
+      text-decoration: none;
+      background: #fff;
+      color: #ff4081;
+      padding: 15px 30px;
+      border-radius: 30px;
+      font-size: 1.2rem;
+      font-weight: bold;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      transition: all 0.3s ease;
+    }
+
+    a.button:hover {
+      background: #ff4081;
+      color: #fff;
+      transform: translate(-50%, -50%) scale(1.1);
+    }
+
+    /* Message overlay */
+    .message {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(255,240,245,0.95);
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      color: #2c1a2b;
+      font-style: italic;
+      padding: 25px 20px;
+      box-sizing: border-box;
+      animation: fadeIn 1s ease forwards;
+      z-index: 2;
+      overflow-y: auto;
+    }
+
+    .message h1 {
+      font-size: 2.5rem;
+      margin-bottom: 15px;
+      word-wrap: break-word;
+    }
+
+    .message p {
+      font-size: 1.3rem;
+      line-height: 1.5;
+      margin: 10px auto;
+      max-width: 90%;
+      word-wrap: break-word;
+    }
+
+    @media (max-width: 600px) {
+      .message h1 { font-size: 2rem; }
+      .message p { font-size: 1.1rem; }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    /* Flower container */
+    .flowers {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .flower {
+      position: absolute;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: radial-gradient(circle, #ffb6c1, #ff69b4, #d81b60);
+      box-shadow: 0 0 10px #ff4081;
+      animation: fall 8s linear infinite;
+    }
+
+    @keyframes fall {
+      0% { transform: translateY(-10%) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
+    }
+
+    button.close {
+      margin-top: 25px;
+      background: #ff4081;
+      color: white;
+      border: none;
+      padding: 10px 25px;
+      border-radius: 25px;
+      cursor: pointer;
+      font-size: 1.1rem;
+      transition: all 0.3s;
+      z-index: 3;
+    }
+
+    button.close:hover {
+      background: #d81b60;
+    }
+
+    /* 3D Heart canvas */
+    #heartCanvas {
+      position: fixed;
+      top:0;
+      left:0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Main button -->
+  <a href="#" class="button" id="openButton">Click to Open New month Wishes from Joyline. 🌷</a>
+
+  <!-- Message overlay -->
+  <div class="message" id="messageBox">
+    <div id="heartCanvas"></div>
+    <div class="flowers" id="flowersContainer"></div>
+    <h1>🌻🥰Happy new month to All!!,🌹🌞</h1>
+    <p>
+      🥰🌹My Dear ones!May this month wrap your hearts in warmth,peace and  ❤️joy🌸<br><br>
+      🥰As the year comes to a close,🌺may every day of December bring you renewed hope, ❤️gentle moments and memories worth keeping forever🌺<br><br>
+      ....from,... <strong>Joyline...</strong>
+    </p>
+    <p style="margin-top: 20px; font-style: italic; color: #4b2c3a;">
+      “🥰I'm grateful for each of you and I wish that this festive season🌹 fills your homes with love.”<br><br>
+      🥰your paths with blessings🌺 ,and your hearts with🌺 pure happiness❤️💫🌸<br><br>
+      🥰...🌹...Joyline Jopartedja... 🌷💕
+    </p>
+    <button class="close" id="closeButton">Close</button>
+  </div>
+
+  <!-- Romantic instrumental -->
+  <audio id="romanticAudio" loop preload="auto" src="romantic_instrumental.mp3"></audio>
+
+  <!-- THREE.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+  <script>
+    // ------------------- Flower + Audio + Buttons -------------------
+    const openBtn = document.getElementById('openButton');
+    const closeBtn = document.getElementById('closeButton');
+    const messageBox = document.getElementById('messageBox');
+    const flowersContainer = document.getElementById('flowersContainer');
+    const audio = document.getElementById('romanticAudio');
+
+    openBtn.addEventListener('click', function(e){
+      e.preventDefault();
+      
+      // Hide the button to give full romantic space
+      openBtn.style.display = 'none';
+      
+      messageBox.style.display = 'flex';
+      createFallingFlowers();
+      startHeartAnimation();
+
+      audio.currentTime = 0;
+      audio.volume = 0;
+      const playPromise = audio.play();
+      if(playPromise !== undefined){
+        playPromise.then(() => fadeAudio(audio, 0.7, 3000))
+                   .catch(err => console.log("Autoplay blocked.", err));
+      }
+    });
+
+    closeBtn.addEventListener('click', function(){
+      messageBox.style.display = 'none';
+      flowersContainer.innerHTML = '';
+      fadeAudio(audio, 0, 1000, () => audio.pause());
+
+      // Optional: show the button again if you want the user to reopen
+      openBtn.style.display = 'block';
+    });
+
+    function fadeAudio(audio, targetVolume, duration = 1000, callback){
+      const steps = 30;
+      const stepTime = duration / steps;
+      const startVolume = audio.volume;
+      const delta = (targetVolume - startVolume)/steps;
+      let currentStep = 0;
+      const fadeInterval = setInterval(() => {
+        currentStep++;
+        audio.volume = Math.min(1, Math.max(0, audio.volume + delta));
+        if(currentStep >= steps){
+          clearInterval(fadeInterval);
+          audio.volume = targetVolume;
+          if(callback) callback();
+        }
+      }, stepTime);
+    }
+
+    function createFallingFlowers(){
+      const colors = [
+        '#ffb6c1', '#ff69b4', '#ff85a2', '#ffc1cc',
+        '#f4a460', '#ffcc80', '#a1c4fd', '#cbb4d4',
+        '#fddde6', '#fad0c4', '#c3aed6', '#fbc2eb'
+      ];
+      for(let i=0;i<25;i++){
+        const flower = document.createElement('div');
+        flower.classList.add('flower');
+        flower.style.left = Math.random()*100+'vw';
+        flower.style.animationDelay = Math.random()*5+'s';
+        const color1 = colors[Math.floor(Math.random()*colors.length)];
+        const color2 = colors[Math.floor(Math.random()*colors.length)];
+        flower.style.background = `radial-gradient(circle, ${color1}, ${color2})`;
+        flower.style.boxShadow = `0 0 10px ${color1}`;
+        flowersContainer.appendChild(flower);
+      }
+    }
+
+    // ------------------- 3D Heart Animation -------------------
+    let heartScene, heartCamera, heartRenderer, heartPoints;
+    function startHeartAnimation(){
+      const canvasContainer = document.getElementById('heartCanvas');
+      heartScene = new THREE.Scene();
+      heartCamera = new THREE.PerspectiveCamera(60, innerWidth/innerHeight, 0.1, 1000);
+      heartCamera.position.z = 50;
+
+      heartRenderer = new THREE.WebGLRenderer({ antialias:true, alpha:true });
+      heartRenderer.setSize(innerWidth, innerHeight);
+      canvasContainer.appendChild(heartRenderer.domElement);
+
+      const COUNT = 6000;
+      const positions = new Float32Array(COUNT*3);
+      const startPos = new Float32Array(COUNT*3);
+      const targetPos = new Float32Array(COUNT*3);
+      const colors = new Float32Array(COUNT*3);
+
+      function heartPoint(t){
+        const x = 16*Math.pow(Math.sin(t),3);
+        const y = 13*Math.cos(t)-5*Math.cos(2*t)-2*Math.cos(3*t)-Math.cos(4*t);
+        return {x,y};
+      }
+
+      for(let i=0;i<COUNT;i++){
+        const i3 = i*3;
+        const r = 60*Math.random();
+        const theta = Math.random()*Math.PI*2;
+        const phi = Math.acos(2*Math.random()-1);
+        startPos[i3] = r*Math.sin(phi)*Math.cos(theta);
+        startPos[i3+1] = r*Math.sin(phi)*Math.sin(theta);
+        startPos[i3+2] = r*Math.cos(phi);
+        positions[i3] = startPos[i3];
+        positions[i3+1] = startPos[i3+1];
+        positions[i3+2] = startPos[i3+2];
+
+        const t = Math.random()*Math.PI*2;
+        const p = heartPoint(t);
+        targetPos[i3] = p.x*1.5;
+        targetPos[i3+1] = p.y*1.5;
+        targetPos[i3+2] = (Math.random()-0.5)*8;
+
+        const c = new THREE.Color();
+        c.setHSL(Math.random(),1,0.6);
+        colors[i3]=c.r; colors[i3+1]=c.g; colors[i3+2]=c.b;
+      }
+
+      const geometry = new THREE.BufferGeometry();
+      geometry.setAttribute("position", new THREE.BufferAttribute(positions,3));
+      geometry.setAttribute("color", new THREE.BufferAttribute(colors,3));
+
+      const material = new THREE.PointsMaterial({ size:0.6, vertexColors:true, transparent:true, opacity:1 });
+      heartPoints = new THREE.Points(geometry, material);
+      heartScene.add(heartPoints);
+
+      let tAnim = 0;
+      function animateHeart(){
+        requestAnimationFrame(animateHeart);
+        tAnim += 0.003;
+        const morph = (Math.sin(tAnim*2)+1)/2;
+        for(let i=0;i<COUNT;i++){
+          const i3=i*3;
+          positions[i3] = startPos[i3] + (targetPos[i3]-startPos[i3])*morph;
+          positions[i3+1] = startPos[i3+1] + (targetPos[i3+1]-startPos[i3+1])*morph;
+          positions[i3+2] = startPos[i3+2] + (targetPos[i3+2]-startPos[i3+2])*morph;
+        }
+        geometry.attributes.position.needsUpdate = true;
+        heartPoints.rotation.y += 0.002;
+        heartPoints.rotation.x += 0.001;
+        heartRenderer.render(heartScene, heartCamera);
+      }
+      animateHeart();
+
+      window.addEventListener("resize", () => {
+        heartCamera.aspect = innerWidth/innerHeight;
+        heartCamera.updateProjectionMatrix();
+        heartRenderer.setSize(innerWidth, innerHeight);
+      });
+    }
+  </script>
+</body>
+</html>
